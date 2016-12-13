@@ -1,0 +1,260 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Equipment for Sale</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+  <!--[if IE 6]>
+  <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+  <!--[if IE 7]>
+  <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript" src="/javascript/search.js"></script>
+  <link rel="stylesheet" type="text/css" href="/javascript/shadowbox-3.0.3/shadowbox.css"/>
+  <script type="text/javascript" src="/javascript/login.js"></script>
+  <script type="text/javascript" src="/javascript/shadowbox-3.0.3/shadowbox.js"></script>
+  <style type="text/css">
+    b {
+			color: rgb(255, 205, 142);
+    }
+  </style>
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+    var messageSending = false;
+    var image1 = [[${listing.image1}]];
+    var image2 = [[${listing.image2}]];
+    var image3 = [[${listing.image3}]];
+    var image4 = [[${listing.image4}]];
+    var usersEmail = [[${usersEmail}]];
+    
+    $(document).ready(function () {
+      Shadowbox.init({
+        players: ["img"]
+      });
+      
+      var element = new Array();
+
+      if (image1 != null && image1 != '')
+      {
+        element.push({ 
+            player:     'img', 
+            content:    [[${listing.image1}]] 
+        });
+      }
+      
+      if (image2 != null && image2 != '')
+      {
+        element.push({ 
+            player:     'img', 
+            content:    [[${listing.image2}]] 
+        });
+      }
+      
+      if (image3 != null && image3 != '')
+      {
+        element.push({ 
+            player:     'img', 
+            content:    [[${listing.image3}]] 
+        });
+      }
+      
+      if (image4 != null && image4 != '')
+      {
+        element.push({ 
+            player:     'img', 
+            content:    [[${listing.image4}]] 
+        });
+      }
+      
+      $("#shadowbox-button").click(function(){
+        Shadowbox.open(element);
+      });
+
+      $("#postListing").click(function () {
+        jQuery.ajax({
+  		    type: "POST",
+  		    url: "postListing",
+  		    dataType: "json",
+  		    cache: false,
+  		    data: "listingId=${listing.id}",
+  		    success: function(transport)
+  		    {
+            window.location.href="viewListing?id=${listing.id}";
+  		    }
+        });
+      });
+
+      $("#editListing").click(function () {
+        window.location.href="add_listing?id=${listing.id}";
+      });
+        
+      //TODO: only show if user is logged in
+      $("#submitBtn").click(function () {
+        if (messageSending == true)
+          return;
+        else
+          messageSending = true;
+        $("#message").val($("#messageText").val());
+        $("#email").val('${listing.contactInfo}');
+        jQuery.ajax({
+  		    type: "POST",
+  		    url: "sendMessage",
+  		    dataType: "json",
+  		    cache: false,
+  		    data: "email=" + $("#email").val() + "&message=" + $("#message").val() + "&fromEmail="+usersEmail+"&product=[[${listing.manufacturer}]]+[[${listing.machineType}]]",
+  		    success: function(transport)
+  		    {
+  		      alert("An email has been sent to " + $("#email").val());
+            messageSending = false;
+  		    }, 
+  		    error: function(transport, error){
+  		      alert("There was an error sending an email to " + $("#email").val());
+  		      messageSending = false;
+  		    }
+  	    });
+      });
+
+    });
+
+    $(window).load(function(){
+      var size = $("#imgPreview").css("width").split("px");
+      if (!isNaN(size[0]))
+      {
+        size[0] = parseInt(size[0]) + 20;
+        $("#statsDiv").css("margin-left", size[0] + "px");
+      }
+    });
+  /*]]>*/
+  </script>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content">
+            <div th:replace="/login/accountBand :: accountBand"></div>
+            
+            <div class="content" style="padding-left: 30px;">
+              <div th:if="${listing.live == false}" id="previewDiv">
+                <span style="color: rgb(255, 155, 155)">This listing is not yet live, please confirm that you would like to post this listing:</span> <input type="button" value="Edit Listing" id="editListing"/> <input type="button" value="Post Listing" id="postListing"/>
+              </div>
+              <br/>
+              <div style="float: right;margin-right: 56px;">
+                <h1><span th:text="${#numbers.formatDecimal(listing.price, 0, 'COMMA', 2, 'POINT')}"></span></h1>
+              </div>
+              <table th:if="${!#strings.isEmpty(listing.image1) || !#strings.isEmpty(listing.image2) || !#strings.isEmpty(listing.image3) || !#strings.isEmpty(listing.image4)}" border="1">
+                <tr>
+                  <td>
+                    <a th:if="${!#strings.isEmpty(listing.image1)}" href="/photos/${listing.id}_0.jpg" rel="shadowbox[woodworking]">
+                      <img id="imgPreview" alt="Woodworking Exchange" th:src="${listing.image1}"/>
+                    </a>
+                    <a th:if="${!#strings.isEmpty(listing.image2)}" th:href="${listing.image2}" rel="shadowbox[woodworking]"></a>
+                    <a th:if="${!#strings.isEmpty(listing.image3)}" th:href="${listing.image3}" rel="shadowbox[woodworking]"></a>
+                    <a th:if="${!#strings.isEmpty(listing.image4)}" th:href="${listing.image4}" rel="shadowbox[woodworking]"></a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <input id="shadowbox-button" type="button" value="View Images"/>
+                  </td>
+                </tr>
+              </table>
+              <div id="statsDiv" style="margin-top: -160px;margin-left: 219px;">
+                <div th:inline="text">
+                  <b>Machine Type</b>: [[${listing.machineType}]]
+                </div>
+                <div th:inline="text">
+                  <b>Manufacturer</b>: [[${listing.manufacturer}]]
+                  
+                </div>
+                <div th:inline="text">
+                  <b>Model</b>: [[${listing.model}]]
+                  
+                </div>
+                <div th:inline="text">
+                  <b>Year Manufactured</b>: [[${listing.yearManufactured}]]
+                  
+                </div>
+              </div>
+              
+              <div style="float: right;margin-top: -76px;margin-right: 88px;">
+                <div style="margin-left: 98px;" th:inline="text">[[${listing.voltage}]]V</div>
+                <div th:inline="text"><b>Electrical Specs</b>: [[${listing.cycles}]] cycles</div>
+                <div style="margin-left: 98px;" th:inline="text">[[${listing.phases}]] phases</div>
+              </div>
+              
+              <div style="margin-top: 65px;">
+                <table>
+                  <tr th:inline="text">
+                    <td colspan="3"><b>Machine Condition</b>: [[${listing.machineCondition}]]</td>
+                  </tr>
+                  <tr th:inline="text">
+                    <td colspan="3"><b>Country</b>: [[${listing.country}]]</td>
+                  </tr>
+                  <tr th:inline="text">
+                    <td colspan="3"><b>State/Province</b>: [[${listing.prov}]]</td>
+                  </tr>
+                  <tr th:inline="text">
+                    <td colspan="3"><b>Description</b>: [[${listing.description}]]</td>
+                  </tr>
+                  
+                  <tr>
+                    <td colspan="3">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3"><h2>Contact Seller</h2></td>
+                  </tr>
+                    <form th:if="${user != null}" th:object="${contactForm}" method="POST">
+                      <input type="hidden" th:field="*{message}"/>
+                      <input type="hidden" th:field="*{email}"/>
+                      <tr>
+                        <td colspan="3">
+                          <table th:if="${listing.methodOfContact == 'e-mail'}">
+                            <tr>
+                              <td><b>Message</b></td>
+                              <td><textarea cols="50" rows="10" id="messageText"></textarea></td>
+                            </tr>
+                            <tr>
+                              <td width="100px">&nbsp;</td>
+                              <td><input type="button" id="submitBtn" value="Send message"/></td>
+                            </tr>
+                          </table>
+                          <strong th:if="${listing.methodOfContact == 'phone'" th:inline="text">Call [[${listing.contactPerson}]] at [[${listing.contactInfo}]] to inquire about purchasing!</strong>
+                        </td>
+                      </tr>
+                    </form>
+                    <tr th:if="${user == null}">
+                      <td><strong>Please <a href="/login" style="color: white;">sign in</a> to contact this seller.</strong></td>
+                    </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

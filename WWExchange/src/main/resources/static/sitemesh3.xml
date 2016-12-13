@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+  <mime-type>text/html</mime-type>
+  
+  <mapping path="/*" decorator="/WEB-INF/jsp/decorator.jsp"/>
+  <mapping path="/login/*" decorator="/WEB-INF/jsp/login/decorator.jsp"/>
+  <mapping path="/listings/*" decorator="/WEB-INF/jsp/listings/decorator.jsp"/>
+  <mapping path="/search/*" decorator="/WEB-INF/jsp/search/decorator.jsp"/>
+  <mapping path="/javascript/*" exclue="true" />
+  <mapping path="/listings/feedbackForm" exclue="true" />
+  <mapping path="*.json*" exclue="true" />
+</sitemesh>

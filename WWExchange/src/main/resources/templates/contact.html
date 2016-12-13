@@ -1,0 +1,140 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+    <link href="css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+<!--[if IE 7]>
+        <link href="css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript">
+    $(function(){ //Document ready shorthand
+      var $search = $('#search');//Cache the element for faster DOM searching since we are using it more than once
+      original_val = $search.val(); //Get the original value to test against. We use .val() to grab value="Search"
+      $search.focus(function(){ //When the user tabs/clicks the search box.
+        if($(this).val()===original_val){ //If the value is still the default, in this case, "Search"
+          $(this).val('');//If it is, set it to blank
+        }
+      })
+      .blur(function(){//When the user tabs/clicks out of the input
+        if($(this).val()===''){//If the value is blank (such as the user clicking in it and clicking out)...
+          $(this).val(original_val); //... set back to the original value
+        }
+      });
+
+      $search.keydown(function (event) {
+        if (event.which == 13)
+        {
+          window.location.href = "listings/listing?keyword="+$(this).val();
+        }
+      });
+      $search.keyup(function ()
+      {
+        if ($(this).val() == "")
+        {
+          $(this).css("color", "#999999");
+        }
+        else
+        {
+          $(this).css("color", "#000000"); 
+        }
+      });
+      
+    });
+  </script>
+  <script type="text/javascript" src="javascript/login.js"></script>
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+    $(document).ready(function () {
+
+      $("#submitBtn").click(function () {
+        $("#contactForm").submit();
+      });
+      var success = [[${success}]];
+
+      if (success != '')
+      {
+        $("#success").html(success)
+      }
+    });
+  /*]]>*/
+  </script>
+  <style type="text/css">
+    h1
+    {
+      color: rgb(255, 205, 142);
+    }
+    table tr td
+    {
+      color: rgb(255, 205, 142);
+    }
+  </style>
+  <title>Contact</title>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header" style="margin-top: -55px;margin-left: -1px;">
+        <div class="footer">
+          <div class="body">
+            <div id='cssmenu'>
+            <ul>
+               <li><a href='/index.html'><span>HOME</span></a></li>
+               <li><a href='/about.html'><span>ABOUT</span></a></li>
+               <li><a href='/listings/listing'><span>EQUIPMENT FOR SALE</span></a></li>
+               <li><a href='/listings/add_listing'><span>SELL YOUR EQUIPMENT</span></a></li>
+               <li class='last'><a href='/contact'><span>CONTACT</span></a></li>
+            </ul>
+            </div>
+            <div class="login" style="float: right;margin-top: -49px;margin-right: 5px;"><span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span></div>
+            <div class="login" style="float: right;margin-top: -49px;margin-right: 5px;"><span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span></div>
+            <div id="content" style="padding: 40px;">
+              <div class="content">
+                <ul>
+                  <li>
+                    <h1>Contact Us</h1>
+                    <h4>It's all about you!!!  We want "Woodworking Exchange" to become your "go to place" to buy or sell your used Woodworking Equipment. Feel free to contact us with any comments or suggestions that will help us improve our service.</h4>
+                    <form th:object="${contactForm}" method="POST" id="contactForm">
+                      <table>
+                        <tr>
+                          <td align="right"><b>First Name</b>:</td>
+                          <td><input type="text" th:field="*{firstName}" size="25"/></td>
+                        </tr>
+                        <tr>
+                          <td align="right"><b>Email</b>:</td>
+                          <td><input type="email" th:field="*{email}" size="25"/></td>
+                        </tr>
+                        <tr>
+                          <td align="right"><b>Question/Comment</b>:</td>
+                          <td><textarea th:field="*{message}" rows="10" cols="40"></textarea></td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <input type="button" id="submitBtn" value="Submit"/>
+                          </td>
+                          <td>
+                            <span id="error" class="error"></span>
+                            <span id="success" class="success"></span>
+                          </td>
+                        </tr>
+                      </table>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>

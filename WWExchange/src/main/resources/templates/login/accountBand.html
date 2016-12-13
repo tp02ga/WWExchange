@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head><title></title></head>
+  <body th:fragment="accountBand">
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#myAccount").click(function () {
+          window.location.href = 'myListings';
+        });
+    
+        $("#logout").click(function () {
+          window.location.href = "/j_spring_security_logout";
+        });
+      });
+    </script>
+    <div th:if="${user == null}" class="login"><span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span></div>
+    <div th:if="${user != null}" class="loggedin" th:inline="text">Logged-in as: [[${user.email}]] | <span class="login" id="myAccount">My Account</span> | <span class="login" id="logout">logout</span></div>
+  </body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Login</title>
+<link href="/css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+    <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+<!--[if IE 7]>
+        <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+<link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+<script type="text/javascript" src="/javascript/common.js"></script>
+<script type="text/javascript">
+  $(function()
+  { //Document ready shorthand
+    var $search = $('#search');//Cache the element for faster DOM searching since we are using it more than once
+    original_val = $search.val(); //Get the original value to test against. We use .val() to grab value="Search"
+    $search.focus(function()
+    { //When the user tabs/clicks the search box.
+      if ($(this).val() === original_val)
+      { //If the value is still the default, in this case, "Search"
+        $(this).val('');//If it is, set it to blank
+      }
+    }).blur(function()
+    {//When the user tabs/clicks out of the input
+      if ($(this).val() === '')
+      {//If the value is blank (such as the user clicking in it and clicking out)...
+        $(this).val(original_val); //... set back to the original value
+      }
+    });
+    $search.keydown(function(event)
+    {
+      if (event.which == 13)
+      {
+        window.location.href = "/listings/listing?keyword=" + $(this).val();
+      }
+    });
+    $search.keyup(function()
+    {
+      if ($(this).val() == "")
+      {
+        $(this).css("color", "#999999");
+      }
+      else
+      {
+        $(this).css("color", "#000000");
+      }
+    });
+  });
+</script>
+<script type="text/javascript" src="/javascript/login.js"></script>
+<script type="text/javascript">
+  $(document)
+      .ready(
+          function()
+          {
+            $("#forgotPassword").click(function()
+            {
+              $("#forgotPassDiv").dialog({
+                modal : true
+              });
+            });
+
+            $("#registerBtn").click(function()
+            {
+              window.location.href = '/login/register';
+            });
+
+            $("#forgotPassBtn")
+                .click(
+                    function()
+                    {
+                      $("#forgotPassDiv").dialog('close');
+                      jQuery
+                          .ajax({
+                            type : "POST",
+                            url : "forgotPassword",
+                            dataType : "json",
+                            cache : false,
+                            data : "a=" + $("#forgotPassInput").val(),
+                            success : function(transport)
+                            {
+                              alert("An email has been sent to you so that you can reset your password.");
+                            },
+                            error : function(transport, error)
+                            {
+                              alert("There was an error resetting your password.  Please contact us so that we can manually reset your password.");
+                            }
+                          });
+                    });
+
+            $("#submitBtn").click(function()
+            {
+              $("#email").val($("#j_username").val());
+              $("#password").val($("#j_password").val());
+              $("#frmData").submit();
+            });
+
+            $("#prov").change(function()
+            {
+              if (isCdnProvince($(this).val()))
+              {
+                $("#country").val("Canada");
+              }
+              else
+              {
+                if ($(this).val() == "")
+                {
+                  $("#country").val("");
+                }
+                else
+                {
+                  $("#country").val("USA");
+                }
+              }
+            });
+          });
+
+  function isCdnProvince(prov)
+  {
+    if (prov == "Alberta" || prov == "British Columbia" || prov == "Manitoba"
+        || prov == "New Brunswick" || prov == "Newfoundland"
+        || prov == "Northwest Territories" || prov == "Nova Scotia"
+        || prov == "Nunavut" || prov == "Ontario"
+        || prov == "Prince Edward Island" || prov == "Quebec"
+        || prov == "Saskatchewan" || prov == "Yukon")
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+</script>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content" style="background-color: silver; color: black; font-weight: bold; padding-left: 30px; width: 700px;">
+              <div class="login">
+                <span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span>
+              </div>
+              <h2>Login / Register Now</h2>
+              <h4>You must be "registered" and "logged" in to list your equipment</h4>
+              <form action="" method="post">
+                <!-- use param.error assuming FormLoginConfigurer#failureUrl contains the query parameter error -->
+                <div th:if="${param.error != null}">
+                  Failed to login.
+                  <div th:if="${SPRING_SECURITY_LAST_EXCEPTION != null}">
+                    Reason: <span th:text="${SPRING_SECURITY_LAST_EXCEPTION.message}"></span>
+                  </div>
+                </div>
+                <!-- the configured LogoutConfigurer#logoutSuccessUrl is /login?logout and contains the query param logout -->
+                <div th:if="${param.logout != null}">You have been logged out.</div>
+                <p>
+                  <label for="username">Username</label> <input type="text" id="username" name="username" />
+                </p>
+                <p>
+                  <label for="password">Password</label> <input type="password" id="password" name="password" />
+                </p>
+                <div style="margin-top: 10px;">
+                  <button type="submit" class="btn">Log in</button>
+                  <span style="margin-left: 10px;"><input type="button" value="Register" id="registerBtn" /></span> <span
+                    id="forgotPassword"
+                    style="margin-left: 10px; color: blue; text-decoration: none; border-bottom: 1px dotted; cursor: pointer;">Forgot
+                    Password</span>
+                </div>
+                <div></div>
+              </form>
+
+              <!--             <form method="POST" id="frmData" action="/j_spring_security_check" th:object="${user}"> -->
+              <!--               <input type="hidden" th:field="*{email}"/> -->
+              <!--               <input type="hidden" th:field="*{password}"/> -->
+              <!--               <table> -->
+              <!--                 <tr th:if="${param.failedLogin != null}" class="errorData"><td>Login Failed: Invalid username or password</td></tr> -->
+              <!--                 <tr th:if="${passwordReset != null}" class="greenData"><td>Your password has been reset and emailed to you.</td></tr> -->
+              <!--                 <tr> -->
+              <!--                   <td> -->
+              <!--                     <label for="j_username">Email:</label> -->
+              <!--                   </td> -->
+              <!--                   <td> -->
+              <!--                     <input type="text" id="j_username" name="j_username"/> -->
+              <!--                   </td> -->
+              <!--                 </tr> -->
+              <!--                 <tr> -->
+              <!--                   <td> -->
+              <!--                     <label for="j_password">password:</label> -->
+              <!--                   </td> -->
+              <!--                   <td> -->
+              <!--                     <input type="password" id="j_password" name="j_password"/> -->
+              <!--                   </td> -->
+              <!--                 </tr> -->
+              <!--               </table> -->
+
+              <!--             </form> -->
+              <div id="forgotPassDiv" style="display: none;" title="What is Your Email Address?">
+                <p>Please enter your email address:</p>
+                <input type="text" id="forgotPassInput" /> <input type="button" id="forgotPassBtn" value="Submit" />
+              </div>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+            </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

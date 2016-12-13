@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Sell Your Equipment</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+  <!--[if IE 6]>
+  <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+  <!--[if IE 7]>
+  <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript" src="/javascript/search.js"></script>
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+    $(document).ready(function () {
+      var listingId = /*[]*/ 1;
+      $("span[id^='remove-']").click(function () {
+        var imageId = $(this).attr("id").split("-")[1];
+        removeImage(listingId+'_'+imageId);
+      });
+      $("#machineType").change(function () {
+        var value = $(this).val();
+        if (value == 'Other')
+        {
+          $("#machineTypeOtherLabel").show();
+          $("#machineTypeOther").show();
+        }
+        else
+        {
+          $("#machineTypeOtherLabel").hide();
+          $("#machineTypeOther").hide();
+        }
+      });
+        
+      $("#file_upload_form").submit(function () {
+        $(this).attr("target", "upload_target");
+      });
+
+      $("#file1").change(function () {
+        var value = $(this).val().split("\\");
+        $("#upload-file-container1").css("background", "url(/images/green.png) no-repeat");
+        $("#file1Info").html(value[value.length - 1]);
+      });
+
+      $("#file2").change(function () {
+        var value = $(this).val().split("\\");
+        $("#upload-file-container2").css("background", "url(/images/green.png) no-repeat");
+        $("#file2Info").html(value[value.length - 1]);
+      });
+
+      $("#file3").change(function () {
+        var value = $(this).val().split("\\");
+        $("#upload-file-container3").css("background", "url(/images/green.png) no-repeat");
+        $("#file3Info").html(value[value.length - 1]);
+      });
+
+      $("#file4").change(function () {
+        var value = $(this).val().split("\\");
+        $("#upload-file-container4").css("background", "url(/images/green.png) no-repeat");
+        $("#file4Info").html(value[value.length - 1]);
+      });
+      
+      var brandsArray = [[${brands}]];
+      
+      // make sure to remove the two values for the searching functionality
+      //  "All Brands" and "--------"
+      brandsArray.splice(0,2);
+      $("#manufacturer").autocomplete({source:brandsArray});
+      var date = new Date();
+      $("#yearManufactured").attr("max", date.getFullYear());
+      $("#contactDesc").html("E-mail address");
+      $("#methodOfContact").change(function () {
+        if ($(this).val() == 'e-mail')
+        {
+          $("#contactDesc").html("E-mail address");
+        }
+        else if ($(this).val() == 'phone')
+        {
+          $("#contactDesc").html("Phone Number");
+        }
+      });
+      $("#machineCondition").change(function () {
+        var value = $(this).val();
+        if (value == '')
+        {
+          $("#conditionInfo").html("");
+        }
+        if (value == 'Excellent')
+        {
+          $("#conditionInfo").html("Like New, used very little");
+        }
+        else if (value == 'Very Good')
+        {
+          $("#conditionInfo").html("Newer Machine, used regularly, well maintained");
+        }
+        else if (value == 'Good')
+        {
+          $("#conditionInfo").html("Older Machine, well maintained, working order");
+        }
+        else if (value == 'Fair')
+        {
+          $("#conditionInfo").html("Working order, may have some issues");
+        }
+        else if (value == 'As Is')
+        {
+          $("#conditionInfo").html("Parts, needs work");
+        }
+      });
+
+      $("#voltage").blur(function ()
+      {
+        if (isNumeric($(this).val()))
+        {
+          clearError($(this));
+        }
+        else
+        {
+          addError($(this), "Only whole numbers please");
+        }
+      });
+
+      $("#cycles").blur(function ()
+      {
+        if (isNumeric($(this).val()))
+        {
+          clearError($(this));
+        }
+        else
+        {
+          addError($(this), "Only whole numbers please");
+        }
+      });
+
+      $("#phases").blur(function ()
+      {
+        if (isNumeric($(this).val()))
+        {
+          clearError($(this));
+        }
+        else
+        {
+          addError($(this), "Only whole numbers please");
+        }
+      });
+      
+      $("#submitBtn").click(function () {
+        var valid = true;
+        
+        if ($("#machineType").val() == 'Other')
+        {
+          valid = valid && validityCheck($("#machineTypeOther"))
+        }
+        else
+        {
+          valid = valid && validityCheck($("#machineType"));
+        }
+        valid = valid && validityCheck($("#manufacturer"));
+        valid = valid && validityCheck($("#model"));
+        valid = valid && validityCheck($("#yearManufactured"));
+        valid = valid && validityCheck($("#voltage"));
+        valid = valid && validityCheck($("#cycles"));
+        valid = valid && validityCheck($("#phases"));
+        valid = valid && validityCheck($("#machineCondition"));
+        valid = valid && validityCheck($("#description"));
+        valid = valid && validityCheck($("#country"));
+        valid = valid && validityCheck($("#prov"));
+        valid = valid && validityCheck($("#price"));
+        valid = valid && validityCheck($("#methodOfContact").find(":selected"));
+        valid = valid && validityCheck($("#contactInfo"));
+        valid = valid && validityCheck($("#contactPerson"));
+
+        if ($("#machineType").val() == 'Other')
+        {
+          var otherValue = $("#machineTypeOther").val();
+          if (valid)
+          {
+            $("#machineType").append("<option value='"+otherValue+"'>"+otherValue+"</option>");
+            $("#machineType").val(otherValue);
+          }
+        }
+        
+        if (valid)
+          $("#listing").submit();
+      });
+
+      function validityCheck(obj)
+      {
+        if (obj.val() == '' || obj.val().indexOf('----') > -1)
+        {
+          alert(obj.attr("name") + " cannot be blank.")
+          obj.focus();
+          return false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+
+      function limitChars(textid, limit, infodiv)
+      {
+          var text = $('#'+textid).val(); 
+          var textlength = text.length;
+          if (limit - textlength >= 100)
+          {
+            $('#' + infodiv).css("color", "green");
+          }
+          else if (limit - textlength < 50)
+          {
+            $('#' + infodiv).css("color", "red");
+          }
+          else if (limit - textlength < 100)
+          {
+            $('#' + infodiv).css("color", "yellow");
+          }
+          if(textlength > limit)
+          {
+              $('#' + infodiv).html('You cannot write more then '+limit+' characters!');
+               $('#'+textid).val(text.substr(0,limit));
+               return false;
+          }
+          else
+          {
+           $('#' + infodiv).html('You have '+ (limit - textlength) +' characters left.');
+           return true;
+          }
+      }
+
+      $('#description').keyup(function()
+      { 
+          limitChars('description', 750, 'charlimitinfo');     
+      })
+
+      limitChars('description', 750, 'charlimitinfo');  
+    });
+
+    function removeImage (image)
+    {
+      window.location.href = '/removeImage/'+image;
+    }
+
+    function addError (obj, message)
+    {
+      obj.css("background-color", "rgb(236, 100, 100)");
+      $("#"+obj.attr("id")+"Error").html(message);
+    }
+
+    function clearError (obj)
+    {
+      obj.css("background-color", "white");
+      $("#"+obj.attr("id")+"Error").html("");
+    }
+
+    function isNumeric(val)
+    {
+      return !isNaN(val);
+    }
+  /*]]>*/
+  </script>
+</head>
+
+<body>
+  <div th:replace="/login/accountBand :: accountBand"></div>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content">
+            <div class="content">
+              <form method="POST" th:object="${listing}" id="listing" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}"/>
+                <input type="hidden" th:field="*{image1}"/>
+                <input type="hidden" th:field="*{image2}"/>
+                <input type="hidden" th:field="*{image3}"/>
+                <input type="hidden" th:field="*{image4}"/>
+                <table style="margin-left: 30px; border-collapse: collapse;">
+                  <tr><td colspan="3"><h1>Sell Your Equipment</h1></td></tr>
+                  <tr>
+                    <td align="right">Machine Type</td>
+                    <td>
+                      <select th:field="*{machineType}">
+                        <option th:each="theMachineType : ${machineTypes}" th:value="${theMachineType}" th:text="${theMachineType}"></option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="right" id="machineTypeOtherLabel" style="display: none; color: rgb(255, 205, 142);">Specify Machine Type:</td>
+                    <td><input type="text" id="machineTypeOther" name="Other Machine Type" style="display: none;"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Manufacturer / Brand</td>
+                    <td><input type="text" th:field="*{manufacturer}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Model</td>
+                    <td><input type="text" th:field="*{model}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Year Manufactured</td>
+                    <td><input type="number" min="1900" th:field="*{yearManufactured}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right" style="border-top: 1px solid;border-left: 1px solid;">Voltage:</td>
+                    <td style="border-right: 1px solid; border-top: 1px solid;"><input type="text" th:field="*{voltage}" size="3"/>V <span id="voltageError" class="error"></span></td>
+                  </tr>
+                  <tr>
+                    <td style="border-left: 1px solid;">&nbsp;&nbsp;Electrical Specs.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cycles:</td>
+                    <td style="border-right: 1px solid;"><input type="text" th:field="*{cycles}" size="3"/>cycles <span id="cyclesError" class="error"></span></td>
+                  </tr>
+                  <tr>
+                    <td align="right" style="border-left: 1px solid;border-bottom: 1px solid;">Phases:</td>
+                    <td style="border-right: 1px solid;border-bottom: 1px solid;"><input type="text" th:field="*{phases}" size="3"/>phase <span id="phasesError" class="error"></span></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Condition</td>
+                    <td colspan="2">
+                      <select th:field="*{machineCondition}">
+                        <option th:each="condition : ${conditions}" th:value="${condition}" th:text="${condition}"></option>
+                      </select>&nbsp;<span id="conditionInfo"></span></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Description</td>
+                    <td colspan="2"><textarea th:field="*{description}" rows="7" cols="40"></textarea></td>
+                     
+<!--                     <div id="modalForm" style="display: none;" title="Upload Pictures"> -->
+<!--                       <form method="POST" enctype="multipart/form-data" action="listings/uploadFile" id="fileUploadForm"> -->
+<!--                         <fieldset> -->
+<!--                           <input type="file" id="file" value="Select File" /> -->
+<!--                           <input type="submit" value="Upload"/> -->
+<!--                         </fieldset> -->
+<!--                       </form> -->
+<!--                     </div> -->
+                    
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td><span id="charlimitinfo"></span></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Country</td>
+                    <td><input type="text" th:field="*{country}" th:value="${user.address.country}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">State/Prov</td>
+                    <td><input type="text" th:field="*{prov}" th:value="${user.address.prov}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Asking Price</td>
+                    <td><input type="number" min="0" th:field="*{price}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Preferred Method of Contact</td>
+                    <td>
+                      <select th:field="*{methodOfContact}">
+                        <option th:each="method : ${contactMethod}" th:text="${method}" th:value="${method}"></option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="right"><span id="contactDesc"></span></td>
+                    <td><input type="text" th:field="*{contactInfo}"/></td>
+                  </tr>
+                  <tr>
+                    <td align="right">Contact Person</td>
+                    <td><input type="text" th:field="*{contactPerson}" value="${user.name}"/></td>
+                  </tr>
+                  <tr>
+                    <td>Upload Pictures</td>
+                    <td>
+                      <table>
+                        <tr>
+                          <td th:if="${listing.image1 == null or listing.image1 == ''}" width="100px">
+                            <div id="upload-file-container1" style="background: url(/images/redX.png) no-repeat;">
+                              <input type="file" id="file1" name="file1" style="opacity: 0;filter: alpha(opacity = 50); height: 97px; width: 97px; cursor: pointer;"/>
+                            </div>
+                            <span id="file1Info"></span>
+                          </td>
+                          <td th:if="${listing.image1 != null and listing.image1 != ''}" width="100px"><img th:src="${listing.image1}" width="100px"/></td>
+                          <td th:if="${listing.image1 != null and listing.image1 != ''}"><span class="link" id="remove-0">remove</span></td>
+                          <td th:if="${listing.image2 == null or listing.image2 == ''}" width="100px">
+                            <div id="upload-file-container2" style="background: url(/images/redX.png) no-repeat;">
+                              <input type="file" id="file2" name="file2" style="opacity: 0;filter: alpha(opacity = 50); height: 97px; width: 97px; cursor: pointer;"/>
+                            </div>
+                            <span id="file2Info"></span>
+                          </td>
+                          <td th:if="${listing.image2 != null and listing.image2 != ''}" width="100px"><img th:src="${listing.image2}" width="100px"/></td>
+                          <td th:if="${listing.image2 != null and listing.image2 != ''}"><span class="link" id="remove-1">remove</span></td>
+                        </tr>
+                        <tr>
+                          <td th:if="${listing.image3 == null or listing.image3 == ''}" width="100px">
+                            <div id="upload-file-container3" style="background: url(/images/redX.png) no-repeat;">
+                              <input type="file" id="file3" name="file3" style="opacity: 0;filter: alpha(opacity = 50); height: 97px; width: 97px; cursor: pointer;"/>
+                            </div>
+                            <span id="file3Info"></span>
+                          </td>
+                          <td th:if="${listing.image3 != null and listing.image3 != ''}" width="100px"><img th:src="${listing.image3}" width="100px"/></td>
+                          <td th:if="${listing.image3 != null and listing.image3 != ''}"><span class="link" id="remove-2">remove</span></td>
+                          <td th:if="${listing.image4 == null or listing.image4 == ''}" width="100px">
+                            <div id="upload-file-container4" style="background: url(/images/redX.png) no-repeat;">
+                              <input type="file" id="file4" name="file4" style="opacity: 0;filter: alpha(opacity = 50); height: 97px; width: 97px; cursor: pointer;"/>
+                            </div>
+                            <span id="file4Info"></span>
+                          </td>
+                          <td th:if="${listing.image4 != null and listing.image4 != ''}" width="100px"><img th:src="${listing.image4}" width="100px"/></td>
+                          <td th:if="${listing.image4 != null and listing.image4 != ''}"><span class="link" id="remove-3">remove</span></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr><td>&nbsp;</td></tr>
+                  <tr>
+                    <td th:if="${listing.id == null}" align="right"><input type="button" id="submitBtn" value="Preview Listing"/></td>
+                    <td th:if="${listing.id != null}" align="right"><input type="button" id="submitBtn" value="Update Listing"/></td>
+                  </tr>
+                </table>
+              </form>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+  
+</body>
+</html>

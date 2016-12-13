@@ -1,0 +1,176 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Your Listings</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+  <!--[if IE 6]>
+  <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+  <!--[if IE 7]>
+  <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript" src="/javascript/search.js"></script>
+  <style type="text/css">
+    b
+    {
+      color: rgb(255, 205, 142);
+    }
+  </style>
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+    var idToDelete = null;
+    $(document).ready(function () {
+      $( "#dialogForm" ).dialog({
+  			autoOpen: false,
+  			height: 450,
+  			width: 620,
+  			modal: true,
+        zIndex: 10000,
+  			buttons: {
+  				"Delete Listing": function() 
+          {
+            $("#action").val("del:"+idToDelete)
+            var successful = $("input[name='successful']:checked").val()
+            var contributed = $("input[name='contributedToSuccess']:checked").val();
+            var suggestions = $("#suggestions").val();
+            
+            $("#feedbackSurvey\\.successful").val(successful);
+            $("#feedbackSurvey\\.contributedToSuccess").val(contributed);
+            $("#feedbackSurvey\\.suggestions").val(suggestions);
+                
+            $("#MyListingsCommand").submit();
+  				  $( this ).dialog( "close" );
+  				},
+  				Cancel: function() 
+          {
+  					$( this ).dialog( "close" );
+  				}
+  			}
+  		});
+
+      $("span[name^='deleteListing']").click(function () {
+        var name = $(this).attr("name");
+        idToDelete = name.substring(name.indexOf("(")+1, name.indexOf(")"));
+        $("#dialogForm").dialog("open");
+      });
+
+      $("#deleteAccount").click(function () {
+        $("#confirmDeleteSpan").show();
+      });
+
+      $("#confirmDelete").click(function () {
+        $("#action").val("delAccount:"+$("#passwordConfirm").val());
+        $("#MyListingsCommand").submit();
+      });
+    });
+    
+    function edit (id)
+    {
+      window.location.href = 'add_listing?id='+id;
+    }
+
+    function renew (id)
+    {
+      window.location.href = 'renewListing?id='+id;
+    }
+  /*]]>*/
+  </script>
+</head>
+
+<body>
+  <div th:replace="/login/accountBand :: accountBand"></div>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content">
+            <div class="content">
+              <form method="POST" id="MyListingsCommand" th:object="${MyListingsCommand}">
+                <input type="hidden" th:field="*{action}"/>
+                <input type="hidden" th:field="*{feedbackSurvey.successful}"/>
+                <input type="hidden" th:field="*{feedbackSurvey.contributedToSuccess}"/>
+                <input type="hidden" th:field="*{feedbackSurvey.suggestions}"/>
+                <div th:if="${error != null}" id="errors" class="error" style="padding-left: 30px;" th:text="${error}"></div>
+                <table style="padding-left: 30px;" cellspacing="5">
+                  <tr>
+                    <td colspan="5"><h1>My Listings</h1></td>
+                  </tr>
+                  <tbody th:each="listing, status : ${MyListingsCommand.listings}">
+                    <input type="hidden" th:field="*{listings[__${status.index}__].id}"/>
+                    <input type="hidden" th:field="*{listings[__${status.index}__].machineType}"/>
+                    <input type="hidden" th:field="*{listings[__${status.index}__].model}"/>
+                    <input type="hidden" th:field="*{listings[__${status.index}__].price}"/>
+                    <tr>
+                      <td>
+                        <a th:href="${'javascript:edit('+listing.id+')'}">edit</a>
+                      </td>
+                      <td th:if="${listing.renewalReminderSent == true}">
+                        <a th:href="${'javascript:renew('+listing.id+')'}" style="font-weight: bold;">renew</a>
+                      </td>
+                      <td>
+                        <span class="link" name="deleteListing(${listing.id})">delete</span>
+                      </td>
+                      <td>
+                        <img th:if="${listing.image1 != null}" th:src="${listing.image1}" width="60px"/>
+                        <img th:if="${listing.image1 == null}" src="/images/no-image.PNG" width="60px"/>
+                      </td>
+                      <td th:inline="text">
+                        <b>Type</b>: [[${listing.machineType}]] <br/><b>Model</b>: [[${listing.model}]] <br/><b>Price</b>: $[[${listing.price}]]
+                      </td>
+                    </tr>
+                  </tbody>
+                  <div id="dialogForm" title="Reason for Listing Removal">
+                    <h1>Before you remove this listing:</h1>
+                		<label for="successful"><b>Were you successful in selling your equipment?</b></label>
+                    <br/>
+                    <input type="radio" name="successful" value="true">Yes</input>
+                    <input type="radio" name="successful" value="false">No</input>
+                    <br/>
+                		<label for="contributedToSuccess"><b>Did WoodworkingExchange.com contribute to your success?</b></label>
+                    <br/>
+                		<input type="radio" name="contributedToSuccess" value="true">Yes</input>
+                    <input type="radio" name="contributedToSuccess" value="false">No</input>
+                    <br/>
+                		<label for="suggestions"><b>Can you offer any suggestions how we might improve WoodworkingExchange.com?</b></label>
+                    <br/>
+                    <textarea id="suggestions" rows="7" cols="50"></textarea>
+                  </div>
+                </table>
+                
+                <div style="padding-left: 30px;">
+                  <h1>Removing Account</h1>
+                  If you wish to delete your account and remove all of your listings, <b>please click the button below</b>:<br/>
+                  <input type="button" id="deleteAccount" value="Delete Account"/><br/>
+                  <span id="confirmDeleteSpan" style="display: none;">Confirm account deletion by <b>typing in your password</b>: <br/><input type="password" id="passwordConfirm"/> <input type="button" id="confirmDelete" value="Confirm Account Deletion"/></span>
+                </div>
+                <br/>
+                <br/>
+              </form>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

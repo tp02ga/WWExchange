@@ -1,0 +1,93 @@
+<!DOCTYPE html >
+<html>
+<head>
+<link href="/css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+    <link href="css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+<!--[if IE 7]>
+        <link href="css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript">
+    $(function(){ //Document ready shorthand
+      var $search = $('#search');//Cache the element for faster DOM searching since we are using it more than once
+      original_val = $search.val(); //Get the original value to test against. We use .val() to grab value="Search"
+      $search.focus(function(){ //When the user tabs/clicks the search box.
+        if($(this).val()===original_val){ //If the value is still the default, in this case, "Search"
+          $(this).val('');//If it is, set it to blank
+        }
+      })
+      .blur(function(){//When the user tabs/clicks out of the input
+        if($(this).val()===''){//If the value is blank (such as the user clicking in it and clicking out)...
+          $(this).val(original_val); //... set back to the original value
+        }
+      });
+
+      $search.keydown(function (event) {
+        if (event.which == 13)
+        {
+          window.location.href = "listings/listing?keyword="+$(this).val();
+        }
+      });
+      $search.keyup(function ()
+      {
+        if ($(this).val() == "")
+        {
+          $(this).css("color", "#999999");
+        }
+        else
+        {
+          $(this).css("color", "#000000"); 
+        }
+      });
+      
+    });
+  </script>
+<title>Error</title>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header" style="margin-top: -55px;margin-left: -1px;">
+        <div class="footer">
+          <div class="body">
+            <div id='cssmenu'>
+            <ul>
+               <li><a href='/index.html'><span>HOME</span></a></li>
+               <li><a href='/about.html'><span>ABOUT</span></a></li>
+               <li><a href='/listings/listing'><span>EQUIPMENT FOR SALE</span></a></li>
+               <li><a href='/listings/add_listing'><span>SELL YOUR EQUIPMENT</span></a></li>
+               <li class='last'><a href='/contact'><span>CONTACT</span></a></li>
+            </ul>
+            </div>
+            <div class="login" style="float: right;margin-top: -49px;margin-right: 5px;"><span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span></div>
+            <div id="content" style="background-color: silver; color: black; font-weight: bold; padding-left: 30px; width: 700px;">
+                <h2>There was an error processing your request</h2>
+                
+                
+                <div class="errorData">
+                  <p th:inline="text">Error: [[${error}]]</p>
+                  <p th:inline="text">Caused By: [[${error.cause}]]</p>
+                </div>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+                <h3><a href="javascript:window.history.back();">BACK</a></h3>
+              </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>

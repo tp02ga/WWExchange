@@ -1,0 +1,316 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Register</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+    <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+<!--[if IE 7]>
+        <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript">
+    $(function(){ //Document ready shorthand
+      var $search = $('#search');//Cache the element for faster DOM searching since we are using it more than once
+      original_val = $search.val(); //Get the original value to test against. We use .val() to grab value="Search"
+      $search.focus(function(){ //When the user tabs/clicks the search box.
+        if($(this).val()===original_val){ //If the value is still the default, in this case, "Search"
+          $(this).val('');//If it is, set it to blank
+        }
+      })
+      .blur(function(){//When the user tabs/clicks out of the input
+        if($(this).val()===''){//If the value is blank (such as the user clicking in it and clicking out)...
+          $(this).val(original_val); //... set back to the original value
+        }
+      });
+      $search.keydown(function (event) {
+        if (event.which == 13)
+        {
+          window.location.href = "/listings/listing?keyword="+$(this).val();
+        }
+      });
+      $search.keyup(function ()
+      {
+        if ($(this).val() == "")
+        {
+          $(this).css("color", "#999999");
+        }
+        else
+        {
+          $(this).css("color", "#000000"); 
+        }
+      });
+    });
+  </script>
+  <script type="text/javascript">
+  /*<![CDATA[*/
+    $(document).ready(function () 
+    {
+      $("#submitBtn").click(function () {
+        var email = $("#email").val();
+        var password = $("#password").val();
+        var passwordConfirm = $("#passwordConfirm").val();
+        var name = $("#name").val();
+        var addressLine1 = $("#addressLine1").val();
+        var addressLine2 = $("#addressLine2").val();
+        var city = $("#city").val();
+        var postalCode = $("#postalCode").val();
+        var prov = $("#prov").val();
+        var country = $("#country").val();
+
+        if (email == '')
+        {
+          alert("You must enter a valid email address.");
+          $("#email").focus();
+          return;
+        }
+        if (password == '' || password.length < 6)
+        {
+          alert("You must enter a valid password containing at least 6 characters.");
+          $("#password").focus();
+          return;
+        }
+        if (passwordConfirm != password)
+        {
+          alert("Your passwords do not match!");
+          $("#password").focus();
+          return;
+        }
+        if (name == '')
+        {
+          alert("You must enter a valid name.");
+          $("#name").focus();
+          return;
+        }
+        if (addressLine1 == '')
+        {
+          alert("You must enter a valid address.");
+          $("#addressLine1").focus();
+          return;
+        }
+        if (city == '')
+        {
+          alert("You must enter a valid city.");
+          $("#city").focus();
+          return;
+        }
+        if (postalCode == '')
+        {
+          alert("You must enter a valid zip/postal code.");
+          $("#postalCode").focus();
+          return;
+        }
+        if (prov == '')
+        {
+          alert("You must enter a valid state/province.");
+          $("#prov").focus();
+          return;
+        }
+        if (country == '')
+        {
+          alert("You must enter a valid country.");
+          $("#country").focus();
+          return;
+        }
+
+        $("#frmUser").submit();
+      });
+      
+      
+      $("#prov").change(function () 
+      {
+        if (isCdnProvince($(this).val()))
+        {
+          $("#country").val("Canada");
+        }
+        else
+        {
+          if ($(this).val() == "")
+          {
+            $("#country").val(""); 
+          }
+          else
+          {
+            $("#country").val("USA"); 
+          }
+        }
+      });
+    });
+
+    function isCdnProvince(prov)
+    {
+      if (prov == "Alberta" || prov == "British Columbia" || prov == "Manitoba" || prov == "New Brunswick"
+        || prov == "Newfoundland" || prov == "Northwest Territories" || prov == "Nova Scotia"
+        || prov == "Nunavut" || prov == "Ontario" || prov == "Prince Edward Island" || prov == "Quebec"
+        || prov == "Saskatchewan" || prov == "Yukon")
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  /*]]>*/
+  </script>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content" style="background-color: silver; color: black; font-weight: bold; padding-left: 30px; width: 700px;">
+            <form method="POST" th:object="${user}" id="frmUser">
+              <table>
+                <tr>
+                  <td colspan="2">
+                    <h1>User Registration</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="email">Email Address:</label>
+                  </td>
+                  <td>
+                    <input type="email" th:field="*{email}"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="password">Password:</label>
+                  </td>
+                  <td>
+                    <input type="password" th:field="*{password}"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="password">Confirm Password:</label>
+                  </td>
+                  <td>
+                    <input type="password" id="passwordConfirm"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="name">Name:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{name}"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="name">Title:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{title}"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="name">Company:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{company}"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="address.addressLine1">Address Line 1:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{address.addressLine1}" id="addressLine1"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="address.addressLine2">Address Line 2:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{address.addressLine2}" id="addressLine2"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="address.city">City:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{address.city}" id="city"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="postalCode">Zip/Postal Code:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{address.postalCode}" id="postalCode"/><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="prov">State/Province:</label>
+                  </td>
+                  <td>
+                    <select id="prov" th:field="*{address.prov}">
+                      <option th:each="province : ${provinces}" th:value="${province}" th:text="${province}"></option>
+                    </select><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="country">Country:</label>
+                  </td>
+                  <td>
+                    <select id="country" th:field="*{address.country}">
+                      <option th:each="country : ${countries}" th:value="${country}" th:text="${country}"></option> 
+                    </select><span style="color:red;">*</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="right">
+                    <label for="name">Primary Business Activity:</label>
+                  </td>
+                  <td>
+                    <input type="text" th:field="*{primaryBusinessActivity}"/>
+                  </td>
+                </tr>
+                <tr><td><small><span style="color:red;">* Required Field</span></small></td></tr>
+                <tr><td>&nbsp;</td></tr>
+                <tr>
+                  <td>
+                    <input type="button" value="Submit" id="submitBtn"/>
+                  </td>
+                </tr>
+              </table>
+            </form>
+          </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html >
+<html>
+
+<head>
+<title>Home</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+<!--[if IE 6]>
+    <link href="css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+<!--[if IE 7]>
+        <link href="css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript">
+    $(function(){ //Document ready shorthand
+      var $search = $('#search');//Cache the element for faster DOM searching since we are using it more than once
+      original_val = $search.val(); //Get the original value to test against. We use .val() to grab value="Search"
+      $search.focus(function(){ //When the user tabs/clicks the search box.
+        if($(this).val()===original_val){ //If the value is still the default, in this case, "Search"
+          $(this).val('');//If it is, set it to blank
+        }
+      })
+      .blur(function(){//When the user tabs/clicks out of the input
+        if($(this).val()===''){//If the value is blank (such as the user clicking in it and clicking out)...
+          $(this).val(original_val); //... set back to the original value
+        }
+      });
+
+      $search.keydown(function (event) {
+        if (event.which == 13)
+        {
+          window.location.href = "listings/listing?keyword="+$(this).val();
+        }
+      });
+      $search.keyup(function ()
+      {
+        if ($(this).val() == "")
+        {
+          $(this).css("color", "#999999");
+        }
+        else
+        {
+          $(this).css("color", "#000000"); 
+        }
+      });
+      
+    });
+  </script>
+  <script type="text/javascript" src="/javascript/login.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function ()  {
+      
+    });
+  
+    function submitForm()
+    {
+      $("#loginForm").submit();
+    }
+  </script>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header" style="margin-top: -55px;margin-left: -1px;">
+        <div class="footer">
+          <div class="body">
+            <div id='cssmenu'>
+            <ul>
+               <li><a href='/index.html'><span>HOME</span></a></li>
+               <li><a href='/about.html'><span>ABOUT</span></a></li>
+               <li><a href='/listings/listing'><span>EQUIPMENT FOR SALE</span></a></li>
+               <li><a href='/listings/add_listing'><span>SELL YOUR EQUIPMENT</span></a></li>
+               <li class='last'><a href='/contact'><span>CONTACT</span></a></li>
+            </ul>
+            </div>
+            <div class="login" style="float: right;margin-top: -49px;margin-right: 5px;"><span id="login" class="login">Login</span>|&nbsp;<span id="register" class="login">&nbsp;Register</span></div>
+            <div id="content" style="width: 950px;">
+              <div id="dialog" title="Login" style="display: none;">
+                <form id="loginForm" method="post">
+                  <fieldset>
+                    <label for="email">Email</label> 
+                    <input type="text" name="email" id="email" value="" />
+                    <br/> 
+                    <label for="password">Password</label> 
+                    <input type="password" name="password" id="password" value=""/>
+                  </fieldset>
+                </form>
+              </div>
+              <img src="images/Logo.png" style="width: 700px;padding: 35px; margin-left: 75px;"/>
+              <div style="float: left; margin-top: -100px;">
+                <img src="images/new.png" style="transform:rotate(-7deg);-ms-transform:rotate(-7deg); /* IE 9 */-moz-transform:rotate(-7deg); /* Firefox */-webkit-transform:rotate(-7deg); /* Safari and Chrome */-o-transform:rotate(-7deg); /* Opera */"/>
+                <img src="images/new.png" style="margin-left: 445px; transform:rotate(14deg);-ms-transform:rotate(14deg); /* IE 9 */-moz-transform:rotate(14deg); /* Firefox */-webkit-transform:rotate(14deg); /* Safari and Chrome */-o-transform:rotate(14deg); /* Opera */"/>
+              </div>
+              <div style="clear: both;"></div>
+              
+              <div class="hi">
+                <img src="images/hi.jpg" style="padding: 18px;"/>
+                <p>Welcome to the WOODWORKING EXCHANGE<br/>
+                   A website dedicated solely to the BUYING and SELLING of USED Commercial Woodworking Equipment</p>
+              </div>
+              
+              <p style="color: black;font-size: 20px;margin-left: 298px; line-height: 25px;">
+                It's Easy<br/>
+                It's Simple<br/>
+                No Fees or Commissions<br/>
+                which means:<br/>
+                <span style="font-size: 30px; line-height: 40px;">IT'S FREE!</span>
+              </p>
+              <!-- <div class="featured">
+                <div class="header">
+                  <ul>
+                    <li class="first">
+                      <img src="images/hi.jpg"
+                      width="50" height="62" alt="" title="">
+                    </li>
+                    <li class="last">
+                      <p>Welcome to the Woodworking Exchange
+                        website. Making buying and selling of used
+                        woodworking equipment easy!</p>
+                    </li>
+                  </ul>
+                </div>
+                <div class="body">
+                  <p>Our site is still under construction, but soon
+                    you will be able to list your used woodworking
+                    equipment for sale here at no cost! Our goal is to
+                    allow you to get in contact with buyers and sell
+                    your used woodworking equipment quickly and easily.
+                  </p>
+          
+                  <p></p>
+                </div>
+              </div> 
+               -->
+            </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>

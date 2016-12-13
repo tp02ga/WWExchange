@@ -1,0 +1,280 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Equipment for Sale</title>
+  <link href="/css/style.css" rel="stylesheet" type="text/css" />
+  <!--[if IE 6]>
+  <link href="/css/ie6.css" rel="stylesheet" type="text/css" />
+  <![endif]-->
+  <!--[if IE 7]>
+  <link href="/css/ie7.css" rel="stylesheet" type="text/css" />  
+  <![endif]-->
+  <link href="/css/redmond/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="/javascript/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.19.custom.min.js"></script>
+  <script type="text/javascript" src="/javascript/common.js"></script>
+  <script type="text/javascript" src="/javascript/search.js"></script>
+  <script type="text/javascript" src="/javascript/login.js"></script>
+  <script type="text/javascript" src="/javascript/image_scale.js"></script>
+  <script type="text/javascript" src="/javascript/jquery.paginate.js"></script>
+  <style type="text/css">
+    .non-immediate-parent-container{ 
+      height: 175px; 
+      width: 175px; 
+    }
+    b
+    {
+      color: rgb(255, 205, 142);
+    }
+  </style>
+  <script th:inline="javascript">
+  /*<![CDATA[*/
+      var descriptions = [];
+      var index = 1;
+    $(document).ready(function () {
+      $("#paginate").paginate({
+				count 		: ${count},
+				start 		: ${page},
+				display     : 8,
+				border					: true,
+				text_color  			: '#777',
+				background_color    	: '#222255',	
+				text_hover_color  		: 'white',
+				background_hover_color	: '#222299',
+        onChange : function (page) 
+        {
+          window.location.href = 'listing?page='+page;
+				}
+			});
+      
+      $('.an-image').imgscale({ 
+        parent : '.non-immediate-parent-container', 
+      }); 
+
+      $(".listingTable tr:nth-child(5)").each(function () {
+        var description = ltrim(rtrim($(this).html()));
+        descriptions.push(description);
+        description = description.substring(4, description.length - 5);
+        var count = description.length;
+        var lineBreakCount = description.match(/<br>/g);
+        if (lineBreakCount != null)
+          count += lineBreakCount.length * 40;
+        if (count > 300)
+        {
+          var indexForSubstring = getIndexForSubstring(description, lineBreakCount.length);
+          if (indexForSubstring != 0)
+            $(this).html("<td>"+description.substring(0, indexForSubstring)+"&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:showMore("+index+")'>...more</a></td>");
+        }
+        index++;
+      });
+
+      $("#region").change(function () {
+        if ($(this).val().indexOf("----") == -1)
+        {
+          $("#searchForm").submit();
+        }
+      }); 
+
+      $("#manufacturer").change(function () {
+        if ($(this).val().indexOf("----") == -1)
+        {
+          $("#searchForm").submit();
+        }
+      }); 
+
+      $("#machineType").change(function () {
+        if ($(this).val().indexOf("----") == -1)
+        {
+          $("#searchForm").submit();
+        }
+      });
+
+      $("input[name='condition']").change(function () {
+        $("#searchForm").submit();
+      }); 
+
+      $("#keywordSearch").click(function () {
+        $("#searchForm").submit();
+      });
+    });
+
+    function editListing(listingId)
+    {
+      window.location.href="add_listing?id="+listingId;
+    }
+
+    function postListing(listingId)
+    {
+      jQuery.ajax({
+		    type: "POST",
+		    url: "postListing",
+		    dataType: "json",
+		    cache: false,
+		    data: "listingId="+listingId,
+		    success: function(transport)
+		    {
+          window.location.href="listing";
+		    }
+      });
+    }
+
+    function showMore(index)
+    {
+      var i = 1;
+      $(".listingTable tr:nth-child(5)").each(function () {
+        if (i == index)
+        {
+          $(this).html(descriptions[index-1]);
+        }
+        i++;
+      });
+    }
+    function getIndexForSubstring(description, lineBreakCount)
+    {
+      if (description == null || lineBreakCount == null)
+        return 0;
+
+      var startingSubstringCount = 290;
+      var lastBrIndex = -1;
+      for (var i=0; i<lineBreakCount; i++)
+      {
+        lastBrIndex = description.indexOf("<br>", lastBrIndex+1);
+        if (lastBrIndex < 290)
+        {
+          startingSubstringCount -= 15;
+        }
+        else
+        {
+          break;
+        }
+      }
+      return startingSubstringCount;
+    }
+    
+    function ltrim(str) { 
+    	for(var k = 0; k < str.length && isWhitespace(str.charAt(k)); k++);
+    	return str.substring(k, str.length);
+    }
+    function rtrim(str) {
+    	for(var j=str.length-1; j>=0 && isWhitespace(str.charAt(j)) ; j--) ;
+    	return str.substring(0,j+1);
+    }
+    function isWhitespace(charToCheck) {
+    	var whitespaceChars = " \t\n\r\f";
+    	return (whitespaceChars.indexOf(charToCheck) != -1);
+    }
+  /*]]>*/
+  </script>
+</head>
+
+<body>
+  <div id="background">
+    <div id="page">
+      <div class="header">
+        <div class="footer">
+          <div class="body">
+            <div id="sidebar">
+              <a href="/index.html"><img id="logo" src="/images/Logo.png" style="width: 95%; margin-left: 6px;" alt="" title="" /></a>
+              <ul class="navigation">
+                <li><a href="/index.html">HOME</a></li>
+                <li><a href="/about.html">ABOUT</a></li>
+                <li><a href="/listings/listing">EQUIPMENT FOR SALE</a></li>
+                <li><a href="/listings/add_listing">SELL YOUR EQUIPMENT</a></li>
+                <li class="last"><a href="/contact">CONTACT</a></li>
+              </ul>
+              <div class="footenote">
+                <span>&copy; Copyright &copy; 2012.</span> <span>Woodworking Exchange all rights reserved</span>
+              </div>
+            </div>
+            <div id="content">
+            <div th:replace="/login/accountBand :: accountBand"></div>
+            <div class="search">
+              <h2>Search criteria</h2>
+              <form id="searchForm" method="POST" th:object="${SearchCriteria}">
+                <strong>Keyword</strong>: <input type="text" th:field="*{keyword}"/> <input type="button" id="keywordSearch" value="Search"/><br/>
+                <select th:field="*{manufacturer}">
+                  <option th:each="brand : ${brands}" th:value="${brand}" th:text="${brand}"></option>
+                </select>
+                <br/>
+                <select th:field="*{machineType}">
+                  <option value="All Machine Types"></option>
+                  <option value="-----------"></option>
+                  <option th:each="machineType : ${machineTypes}" th:value="${machineType}" th:text="${machineType}"></option>
+                </select>
+                <div style="float: right;margin-right: 14px;margin-top: -25px;">
+                  <select th:field="*{region}" >
+                    <option th:each="region : ${regions}" th:value="${region}" th:text="${region}"></option>
+                  </select>
+                  <br/>
+                  <strong>Condition</strong>: <input type="checkbox" th:each="condition : ${conditions}" th:value="${condition}" th:text="${condition}" th:field="*{condition}"/>
+                </div>
+                <br/>
+              </form>
+            </div>
+            <hr/>
+            <h2 style="color: black;">Listings by Date</h2>
+            <div class="content">
+              <div style="padding-left: 30px;">
+                <p th:if="${#lists.isEmpty(listings)}">
+                  No listings
+                </p>
+                <table th:if="${!#lists.isEmpty(listings)}">
+                  <tbody th:each="listing : ${listings}">
+                    <tr th:if="${listing.live == false}">
+                      <td colspan="2"><span style="color: rgb(255, 155, 155)">This listing is not yet live:</span> <input type="button" onclick="editListing(${listing.id})" value="Edit Listing"/> <input type="button" onclick="postListing(${listing.id})" value="Post Listing" /></td>
+                    </tr>
+                    <tr>
+                      <td style="width: 180px;">
+                        <table>
+                          <tr>
+                            <td>
+                              <div th:if="${listing.image1 != null}" class="non-immediate-parent-container">
+                                <a href="viewListing?id=${listing.id}"><img src="/thumbs/${listing.id}_0.jpg" class="an-image"/></a>
+                              </div>
+                              <a th:if="${listing.image == null}" href="viewListing?id=${listing.id}"><img src="/images/no-image.PNG" width="175px"/></a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td>
+                        <table class="listingTable">
+                          <tr>
+                            <td><b>Machine Type</b>: ${listing.machineType}</td>
+                          </tr>
+                          <tr>
+                            <td><b>Manufacturer</b>: ${listing.manufacturer}</td>
+                          </tr>
+                          <tr>
+                            <td><b>Model</b>: ${listing.model}</td>
+                          </tr>
+                          <tr>
+                            <td><b>Year Manufactured</b>: ${listing.yearManufactured}</td>
+                          </tr>
+                          <tr>
+                            <td><b>Date Added</b>: <span th:text="${#dates.format(listing.dateAdded, 'MMM dd, yyyy')}"></span></td>
+                          </tr>
+                          <tr>
+                            <td><b>Description</b>: ${listing.description}</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2"><hr width="600px" align="left"/></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div id="paginate"></div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="shadow">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  
+  
+</body>
+</html>
